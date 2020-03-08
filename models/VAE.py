@@ -23,6 +23,8 @@ class VAE(nn.Module):
 
         if self.input_size == [1, 28, 28] or self.input_size == [3, 28, 28]:
             self.last_kernel_size = 7
+        elif self.input_size == [3, 32, 32] or self.input_size == [1, 32, 32]:
+            self.last_kernel_size = 8
         elif self.input_size == [1, 28, 20]:
             self.last_kernel_size = (7, 5)
         else:
