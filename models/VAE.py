@@ -67,7 +67,7 @@ class VAE(nn.Module):
             )
             return q_z_nn, q_z_mean, q_z_var
 
-        elif self.input_type == 'multinomial':
+        elif self.input_type == 'multinomial' or self.input_type == "continuous":
             act = None
 
             q_z_nn = nn.Sequential(
@@ -110,7 +110,7 @@ class VAE(nn.Module):
             )
             return p_x_nn, p_x_mean
 
-        elif self.input_type == 'multinomial':
+        elif self.input_type == 'multinomial' or self.input_type == "continuous":
             act = None
             p_x_nn = nn.Sequential(
                 GatedConvTranspose2d(self.z_size, 64, self.last_kernel_size, 1, 0, activation=act),
@@ -121,12 +121,16 @@ class VAE(nn.Module):
                 GatedConvTranspose2d(32, 32, 5, 1, 2, activation=act)
             )
 
-            p_x_mean = nn.Sequential(
-                nn.Conv2d(32, 256, 5, 1, 2),
-                nn.Conv2d(256, self.input_size[0] * num_classes, 1, 1, 0),
-                # output shape: batch_size, num_channels * num_classes, pixel_width, pixel_height
-            )
-
+            if self.input_type == "multinomial":
+                p_x_mean = nn.Sequential(
+                    nn.Conv2d(32, 256, 5, 1, 2),
+                    nn.Conv2d(256, self.input_size[0] * num_classes, 1, 1, 0),
+                    # output shape: batch_size, num_channels * num_classes, pixel_width, pixel_height
+                )
+            else:
+                p_x_mean = nn.Sequential(
+                    nn.Conv2d(32, self.input_size[0] * 2, 1, 1, 0),
+                )
             return p_x_nn, p_x_mean
 
         else:
